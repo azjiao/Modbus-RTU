@@ -1,21 +1,21 @@
 /*********************************************************
-功能： 位带映射
-描述： GPIO端口的位带映射宏定义
-设计： azjiao
-版本： 1.0
-日期： 2018年07月04日
+���ܣ� λ��ӳ��
+������ GPIO�˿ڵ�λ��ӳ��궨��
+��ƣ� azjiao
+�汾�� 1.0
+���ڣ� 2018��07��04��
 *********************************************************/
 #ifndef __BITBAND_H
 #define __BITBAND_H
 #include <stm32f10x.h>
-// 取得位带映射地址值
+// ȡ��λ��ӳ���ֵַ
 #define BITBAND(addr,bitnum)  ((addr & 0xF0000000) + 0x2000000 + ((addr &0xFFFFF) << 5)+(bitnum << 2))
-// 把地址值转换为指向unsigned long 的指针,并定义为指针所指地址的内容。
+// �ѵ�ֵַת��Ϊָ��unsigned long ��ָ��,������Ϊָ����ָ��ַ�����ݡ�
 #define MEM_ADDR(addr)  *((volatile unsigned long *)(addr))
-// 定义位操作宏
+// ����λ������
 #define BIT_ADDR(addr,bitnum)  MEM_ADDR(BITBAND(addr,bitnum))
 
-// IO端口地址宏定义:为GPIO的ODR和IDR寄存器的地址映射。
+// IO�˿ڵ�ַ�궨��:ΪGPIO��ODR��IDR�Ĵ����ĵ�ַӳ�䡣
 #define GPIOA_ODR_ADDR  (GPIOA_BASE + 0xc)
 #define GPIOB_ODR_ADDR  (GPIOB_BASE + 0xc)
 #define GPIOC_ODR_ADDR  (GPIOC_BASE + 0xc)
@@ -33,8 +33,8 @@
 #define GPIOG_IDR_ADDR  (GPIOG_BASE + 0x8)
 
 
-// IO端口独立一位读写操作宏定义
-// n值范围为：n<=15且n>=0
+// IO�˿ڶ���һλ��д�����궨��
+// nֵ��ΧΪ��n<=15��n>=0
 #define PAout(n)  BIT_ADDR(GPIOA_ODR_ADDR,n)
 #define PAin(n)   BIT_ADDR(GPIOA_IDR_ADDR,n)
 

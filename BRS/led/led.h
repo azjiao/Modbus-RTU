@@ -2,10 +2,10 @@
 #define __LED_H
 #include "bitBand.h"
 
-//å®šä¹‰LED0å’ŒLED1çš„ç‚¹äº®å’Œç†„ç­å®ã€‚
-//æ¿è½½LED0å’ŒLED1æ˜¯å¼€æ¼è¾“å‡ºï¼Œè¾“å‡º0æ‰èƒ½ç‚¹äº®ï¼Œè€Œè¾“å‡º1ç†„ç­ã€‚
+//¶¨ÒåLED0ºÍLED1µÄµãÁÁºÍÏ¨Ãğºê¡£
+//°åÔØLED0ºÍLED1ÊÇ¿ªÂ©Êä³ö£¬Êä³ö0²ÅÄÜµãÁÁ£¬¶øÊä³ö1Ï¨Ãğ¡£
 #define __BITBANDLED
-// ä½¿ç”¨ä½å¸¦æ“ä½œLEDã€‚
+// Ê¹ÓÃÎ»´ø²Ù×÷LED¡£
 #ifdef  __BITBANDLED
 #define LED0 PBout(5)
 #define LED1 PEout(5)
@@ -16,7 +16,7 @@
 #define LED1_OFF LED1 = 1
 
 
-//ä½¿ç”¨æ™®é€šåº“å‡½æ•°æ¥æ“ä½œLEDã€‚
+//Ê¹ÓÃÆÕÍ¨¿âº¯ÊıÀ´²Ù×÷LED¡£
 #else
 #define LED0_ON GPIO_ResetBits( GPIOB, GPIO_Pin_5 )
 #define LED0_OFF GPIO_SetBits( GPIOB, GPIO_Pin_5 )
@@ -24,7 +24,7 @@
 #define LED1_OFF GPIO_SetBits( GPIOE, GPIO_Pin_5 )
 #endif
 
-//æ¿è½½ledåˆå§‹åŒ–ã€‚
+//°åÔØled³õÊ¼»¯¡£
 void led_Init(void);
 
 

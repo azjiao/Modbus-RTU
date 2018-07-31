@@ -2,7 +2,7 @@
 #define __EXTIX_H
 #include "stm32f10x.h"
 
-// æŒ‰é”®å¤–éƒ¨ä¸­æ–­åˆå§‹åŒ–ã€‚
+// °´¼üÍâ²¿ÖĞ¶Ï³õÊ¼»¯¡£
 void keyExti_Init(void);
 
 

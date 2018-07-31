@@ -4,41 +4,41 @@
 
 #define APP1MSPLUS
 #ifdef  APP1MSPLUS
-// å¦‚æœé‡‡ç”¨1msè„‰å†²æ–¹å¼ï¼Œåˆ™ä»¥500usè®¾ç½®SysTick.
+// Èç¹û²ÉÓÃ1msÂö³å·½Ê½£¬ÔòÒÔ500usÉèÖÃSysTick.
 void delay_Init(void)
 {
-    // SysTické…ç½®ï¼Œç­‰å¾…å®Œæˆã€‚
+    // SysTickÅäÖÃ£¬µÈ´ıÍê³É¡£
     if (SysTick_Config(RELOAD_500US))
     {
         while(1);
     }
 }
 
-// SysTickå®šæ—¶å™¨ä¸­æ–­
+// SysTick¶¨Ê±Æ÷ÖĞ¶Ï
 void SysTick_Handler(void)
 {
-    // 500uså®šæ—¶ä¸­æ–­åˆ°ï¼Œä½¿Timer.bPlus_msç¿»è½¬ä¸€æ¬¡ã€‚
+    // 500us¶¨Ê±ÖĞ¶Ïµ½£¬Ê¹Timer.bPlus_ms·­×ªÒ»´Î¡£
     Timer.bPlus_ms = !Timer.bPlus_ms;
 }
 
 #else
-// å¦‚æœé‡‡ç”¨1msæŸ¥è¯¢æ–¹å¼ï¼Œåˆ™ä»¥1msè®¾ç½®SysTickã€‚
-// é‡‡ç”¨SysTickçš„å®šæ—¶å™¨åˆå§‹åŒ–
+// Èç¹û²ÉÓÃ1ms²éÑ¯·½Ê½£¬ÔòÒÔ1msÉèÖÃSysTick¡£
+// ²ÉÓÃSysTickµÄ¶¨Ê±Æ÷³õÊ¼»¯
 void delay_Init(void)
 {
-    // SysTické…ç½®ï¼Œç­‰å¾…å®Œæˆã€‚
+    // SysTickÅäÖÃ£¬µÈ´ıÍê³É¡£
     if (SysTick_Config(RELOAD_1MS))
     {
         while(1);
     }
 }
 
-// SysTickå®šæ—¶ä¸­æ–­
+// SysTick¶¨Ê±ÖĞ¶Ï
 void SysTick_Handler(void)
 {
-    // 1mså®šæ—¶åˆ°ï¼Œä½¿Timer.uTimer_mså‡1.
-    // ä½¿ç”¨å‰å¿…é¡»ä½¿Timer.uTimer_msèµ‹å€¼ä¸ºéœ€å®šæ—¶çš„mså€æ•°ã€‚
-    // Timerä¸èƒ½é‡å¤ä½¿ç”¨ï¼Œåªèƒ½åœ¨ä¸€ä¸ªåœ°æ–¹ä½¿ç”¨ã€‚
+    // 1ms¶¨Ê±µ½£¬Ê¹Timer.uTimer_ms¼õ1.
+    // Ê¹ÓÃÇ°±ØĞëÊ¹Timer.uTimer_ms¸³ÖµÎªĞè¶¨Ê±µÄms±¶Êı¡£
+    // Timer²»ÄÜÖØ¸´Ê¹ÓÃ£¬Ö»ÄÜÔÚÒ»¸öµØ·½Ê¹ÓÃ¡£
     if( Timer.uTimer_ms != 0U )
     {
         Timer.uTimer_ms--;
@@ -46,30 +46,30 @@ void SysTick_Handler(void)
 }
 #endif
 
-// msçº§delay.
+// ms¼¶delay.
 void delay_ms(u32 utime_ms)
 {
 
     Timer.uTimer_ms = utime_ms;
-    // æŸ¥è¯¢å»¶æ—¶æ˜¯å¦åˆ°ï¼Œä¸åˆ°åˆ™ç»§ç»­æŸ¥è¯¢ã€‚
+    // ²éÑ¯ÑÓÊ±ÊÇ·ñµ½£¬²»µ½Ôò¼ÌĞø²éÑ¯¡£
     while( Timer.uTimer_ms != 0U )
         ;
 }
 
-// sçº§delay.
+// s¼¶delay.
 void delay_s(u32 utime_s)
 {
-    // å»¶æ—¶æ—¶é—´ä¸ºutime_så€çš„1000msã€‚
+    // ÑÓÊ±Ê±¼äÎªutime_s±¶µÄ1000ms¡£
     for (int i = 0; i < utime_s; ++i)
     {
         delay_ms(1000U);
     }
 }
 
-// å»¶æ—¶æ¥é€šå®šæ—¶å™¨
-// å½“bEnbä¸ºTRUEæ—¶å¼€å§‹å®šæ—¶ï¼Œå®šæ—¶å•ä½ä¸º1msã€‚
-// å½“bEnbä¸ºFALSEæ—¶å¤ä½å®šæ—¶å™¨ã€‚
-// å½“å®šæ—¶åˆ°è¾¾åå¦‚æœæ²¡æœ‰å¤ä½å®šæ—¶å™¨åˆ™å®šæ—¶å™¨å½“å‰è®¡æ•°å€¼uEtä¿æŒä¸å˜ã€‚
+// ÑÓÊ±½ÓÍ¨¶¨Ê±Æ÷
+// µ±bEnbÎªTRUEÊ±¿ªÊ¼¶¨Ê±£¬¶¨Ê±µ¥Î»Îª1ms¡£
+// µ±bEnbÎªFALSEÊ±¸´Î»¶¨Ê±Æ÷¡£
+// µ±¶¨Ê±µ½´ïºóÈç¹ûÃ»ÓĞ¸´Î»¶¨Ê±Æ÷Ôò¶¨Ê±Æ÷µ±Ç°¼ÆÊıÖµuEt±£³Ö²»±ä¡£
 bool TimeON(bool bEnb, u32 uPt, TimerType *timer)
 {
     if(!bEnb){

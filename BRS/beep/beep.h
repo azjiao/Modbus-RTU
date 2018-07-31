@@ -2,25 +2,25 @@
 #define __BEEP_H
 #include "bitBand.h"
 /*
- * æ¿è½½èœ‚é¸£å™¨ã€‚
- * beepæŽ¥åˆ°PB8, æŽ¨æŒ½è¾“å‡ºã€‚
+ * °åÔØ·äÃùÆ÷¡£
+ * beep½Óµ½PB8, ÍÆÍìÊä³ö¡£
  *
  */
 
-//å®šä¹‰BEEPå‘å£°å’Œç¦å£°å®ã€‚
-//å½“ç«¯å£ä¸º1æ—¶æ—¶beepå¼•è„šæ”¾å¤§ç®¡å¯¼é€šæŽ¥GNDï¼Œbeepå‘å£°ã€‚
+//¶¨ÒåBEEP·¢ÉùºÍ½ûÉùºê¡£
+//µ±¶Ë¿ÚÎª1Ê±Ê±beepÒý½Å·Å´ó¹Üµ¼Í¨½ÓGND£¬beep·¢Éù¡£
 #define __BITBAND_BEEP
-// ä½¿ç”¨ä½å¸¦æ¥æ“ä½œèœ‚é¸£å™¨
+// Ê¹ÓÃÎ»´øÀ´²Ù×÷·äÃùÆ÷
 #ifdef __BITBAND_BEEP
 #define BEEP_ON  PBout(8) = 1
 #define BEEP_OFF  PBout(8) = 0
-// ä½¿ç”¨æ™®é€šåº“å‡½æ•°æ¥æ“ä½œèœ‚é¸£å™¨
+// Ê¹ÓÃÆÕÍ¨¿âº¯ÊýÀ´²Ù×÷·äÃùÆ÷
 #else
 #define BEEP_ON  GPIO_SetBits( GPIOB, GPIO_Pin_8 )
 #define BEEP_OFF  GPIO_ResetBits( GPIOB, GPIO_Pin_8 )
 #endif
 
-//BEEPåˆå§‹åŒ–
+//BEEP³õÊ¼»¯
 void beep_Init(void);
 
 
