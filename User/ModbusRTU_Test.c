@@ -8,16 +8,8 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include <stdio.h>
-#include <stm32f10x.h>
 #include "template.h"
-#include "key.h"
-#include "led.h"
-#include "beep.h"
-#include "delay.h"
-#include "extix.h"
-#include "bitBand.h"
-#include "usart1.h"
-#include "baseTime.h"
+#include "dev.h"
 #include "modRTU.h"
 #include "modMaster.h"
 #include "modSlave.h"

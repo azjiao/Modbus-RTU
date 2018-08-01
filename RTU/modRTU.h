@@ -10,16 +10,17 @@
 *t1.5使用TIM7基本定时器，定时时基设置为0.01ms,则t1.5是时基的75倍。
 */
 
-//宏定义的T3_5和T1_5的单位是us单位，需要在定时器初始化中转换为ARR值。
-#include <stm32f10x.h>
 #include "template.h"
 
 //MORS为TRUE表示主站,为FALSE表示从站.
 #define MORS   (bool)TRUE
 
 //t3.5和t1.5定时us数.
-#define T3_5_us    (u16)1750
-#define T1_5_us    (u16)750
+//宏定义的T3_5和T1_5的单位是us单位，需要在定时器初始化中转换为ARR值。
+//取消宏定义，改为在通讯初始化中根据波特率来设置t1.5和t3.5的定时时间。
+//#define T3_5_us    (u16)1750
+//#define T1_5_us    (u16)750
+
 #define T3_5       TIM6
 //#define T1_5       TIM7
 //定义t1.5也使用同一个TIM6基本定时器。
@@ -35,7 +36,11 @@ struct RS485Init_Struct
     u16 u16DataBit;  //数据位字长
     u16 u16StopBit;  //停止位
     u16 u16Parity;  //校验位:0无校验，1奇校验，2偶校验
+    u16 u16T1_5_us;  //t1.5定时时间。
+    u16 u16T3_5_us;  //t3.5定时时间。
 };
+extern struct RS485Init_Struct RS485_InitStruct;
+
 // 帧最大长度:字节数.Modbus规定一帧长度不超过256字节。
 #define FRAME_MAXLEN  256
 

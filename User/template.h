@@ -1,6 +1,7 @@
 #ifndef __TEMPLATE_H
 #define __TEMPLATE_H
 #include <stm32f10x.h>
+
 typedef enum
 {    
     FALSE = (u8)0,

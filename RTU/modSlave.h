@@ -7,7 +7,7 @@
 *********************************************************/
 #ifndef __MODSLAVE_H
 #define __MODSLAVE_H
-#include <stm32f10x.h>
+
 #include "template.h"
 #include "modRTU.h"
 
@@ -16,14 +16,14 @@ extern ModRTU_RX_Struct RX_Struct;
 extern ModRTU_TX_Struct TX_Struct;
 
 //从站地址号
-#define MBSLAVE_ADDR  3
+#define MBSLAVE_ADDR  1
 //定义资源每类占用的最大字节。
 #define DATA_MAXLEN   256
 //定义资源地址和通讯元件地址的对应关系。
 //如果定义了ADDR_BASE1为FALSE，则对应关系是0---->0,如果不是则对应关系是0---->1.(通讯元件地址0 无效了)
 //通讯的元件地址基于1，这是西门子PLC产品的特点，同样，ABB变频器也如此.
 //如果有特殊对应要求则需要修改程序。
-#define ADDR_BASE1  TRUE
+#define ADDR_BASE1  FALSE
 
 //定义供通讯的服务器资源类型
 //对于一个可编程的从站来说，资源的尺寸是可以调节配置的，但对于一个具体的从站来说资源尺寸是一定的。所以，元件数量实无必要，可以不用struct来定义。

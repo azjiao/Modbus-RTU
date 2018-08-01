@@ -18,6 +18,8 @@ ModRTU_Buffer Data_Struct;
 
 //通讯控制结构.
 ModRTU_Status_Struct Modbus_Status_Struct;
+//RS485端口初始化数据。
+struct RS485Init_Struct RS485_InitStruct;
 
 //定时器在哪种定时值工作
 //TRUE:用于t1.5定时器，FALSE：用于t3.5定时器。
@@ -101,8 +103,8 @@ void RS485_Init(struct RS485Init_Struct RS485InitStruct)
 //t1.5和t3.5共用TIM6,且计数时钟一样都是100kHz，0.01ms=10us.
 void T15_35_Init(void)
 {
-    //默认初始化为t1.5.
-    Time6_Init2us(T1_5_us);
+    //默认初始化为t1.5.        
+    Time6_Init2us(RS485_InitStruct.u16T1_5_us);
     TIM_Cmd(T1_5, DISABLE);
 }
 
@@ -117,13 +119,16 @@ void TResponse_Init(void)
 //Modbus初始化
 void Modbus_Init(void)
 {
-    //RS485端口初始化:USART2及PD7口,t3.5和t1.5定时器初始化.
-    struct RS485Init_Struct RS485_InitStruct;
-
+    //RS485端口初始化:USART2及PD7口,t3.5和t1.5定时器初始化.    
     RS485_InitStruct.u16DataBit = USART_WordLength_8b;  //8位数据位
     RS485_InitStruct.u16Parity = 0;                     //校验位无
     RS485_InitStruct.u16StopBit = USART_StopBits_1;     //停止位1位
-    RS485_InitStruct.u32BoundRate = 19200;              //波特率
+    RS485_InitStruct.u32BoundRate = 9600;              //波特率
+    
+    //根据波特率计算t1.5和t3.5的定时时间。
+    float fOneByteTime = (11/(float)RS485_InitStruct.u32BoundRate) * 1000000;  //一个字节发送的时间(us)。
+    RS485_InitStruct.u16T1_5_us = 1.5 * fOneByteTime;
+    RS485_InitStruct.u16T3_5_us = 3.5 * fOneByteTime;
     RS485_Init(RS485_InitStruct);
 
 
@@ -194,7 +199,7 @@ void USART2_IRQHandler(void)
             //重新启动t1.5定时器,监测字节流连续性(字节接收超时监测).
             TIM_ClearITPendingBit(T1_5, TIM_IT_Update); //清除定时器中断更新标识.
             TIM_SetCounter(T1_5, 0); //复位向上计数器当前值为0.
-            TIM_SetAutoreload(T1_5, T1_5_us/10 - 1);
+            TIM_SetAutoreload(T1_5, RS485_InitStruct.u16T1_5_us/10 - 1);
             bT1_5 = TRUE;
             TIM_Cmd(T1_5, ENABLE); //使能定时器开始定时.
         }
@@ -228,7 +233,7 @@ void TIM6_IRQHandler(void)
             //t1.5中断时启动t3.5定时器,监测帧是否结束.
             TIM_ClearITPendingBit(T3_5, TIM_IT_Update); //清除定时器中断更新标识.
             TIM_SetCounter(T3_5, 0); //复位向上计数器当前值为0.
-            TIM_SetAutoreload(T3_5, T3_5_us/10 - 1);
+            TIM_SetAutoreload(T3_5, RS485_InitStruct.u16T3_5_us/10 - 1);
             bT1_5 = FALSE;
             TIM_Cmd(T3_5, ENABLE); //使能定时器开始定时.
 
@@ -360,7 +365,7 @@ void SendFrame(ModRTU_TX_Struct* pTX_Struct)
     //延时结束会使bBusy复位。
     TIM_ClearITPendingBit(T3_5, TIM_IT_Update); //清除定时器中断更新标识.
     TIM_SetCounter(T3_5, 0); //复位向上计数器当前值为0.
-    TIM_SetAutoreload(T3_5, T3_5_us/10 - 1);
+    TIM_SetAutoreload(T3_5, RS485_InitStruct.u16T3_5_us/10 - 1);
     bT1_5 = FALSE;
     TIM_Cmd(T3_5, ENABLE); //使能定时器开始定时.
     //等待帧间隔结束。FIXME:当不支持的功能时会出现不能复位bBusy的问题。

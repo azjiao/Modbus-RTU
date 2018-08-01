@@ -6,6 +6,7 @@
 日期： 2018年07月25日
 *********************************************************/
 #include <stdio.h>
+#include "dev.h"
 #include "modSlave.h"
 #include "modRTU.h"
 #include "usart1.h"
@@ -29,8 +30,11 @@ void Modbus_Slave(void)
         {
             //首先判断从站地址是否相符。
             //站地址不符则放弃。
-            if(RX_Struct.Buffer[0] != MBSLAVE_ADDR)
-                return;
+            if(RX_Struct.Buffer[0] != MBSLAVE_ADDR){
+                //Usart_SendFrame(USART1, RX_Struct.Buffer, RX_Struct.u16Index);   
+                   // LED0_OFF;
+                return;}
+            
             //提取功能码做判断
             switch(RX_Struct.Buffer[1]){
                 case 0x01:SlaveFunc_0x01();  //读多个DQ_0xxxx                    
@@ -48,16 +52,19 @@ void Modbus_Slave(void)
                 default:  Default_NonSupport();  //不支持的功能处理。                          
                           
             }
+            //Usart_SendFrame(USART1, RX_Struct.Buffer, RX_Struct.u16Index);
+            LED0_ON;
             //结束后转入接收。
             ReceiveFrame(&RX_Struct);
         }
         //如果有错误：CRC校验失败
         else{
-            iCRCErr_Count++;
-            printf("No %d:接收到的主站数据帧CRC16校验失败！\n", iCRCErr_Count);
-            
+            //iCRCErr_Count++;
+            //printf("No %d:接收到的主站数据帧CRC16校验失败！\n", iCRCErr_Count);  
+            Usart_SendFrame(USART1, RX_Struct.Buffer, RX_Struct.u16Index);            
             //重启接收:重点，不然会导致一直出现校验错误。
             ReceiveFrame(&RX_Struct); 
+            LED0_OFF;
         }
     }
 }
