@@ -3,11 +3,13 @@
 /*
 *Modbus_RTU定义了Modbus通讯的帧开始和结束信息：以接收第一个字节开始以t3.5结束。
 *通讯控制定时时间
-*TIM6和TIM7的时基为0.01ms：CPS=719，即计数时钟为100kHz.
-*t3.5是帧间间隔时间看门狗，标准是不小于1.75ms。
-*t3.5使用TIM6基本定时器，定时时基设置为0.01ms，则t3.5是时基的175倍。
-*t1.5是字节传输连续看门狗，标准是不大于750us=0.75ms。
-*t1.5使用TIM7基本定时器，定时时基设置为0.01ms,则t1.5是时基的75倍。
+*TIM6的时基为0.01ms：CPS=719，即计数时钟为100kHz.
+*t3.5是帧间间隔时间看门狗，标准是不小于3.5个字节发送时间。
+*t1.5是字节传输连续看门狗，标准是不大于1.5个字节发送时间。
+*t3.5和t1.5使用TIM6基本定时器，定时时基设置为0.01ms.
+*当波特率大于19200时，t1.5和t3.5为固定值：t1.5=750us,t3.5=1.75ms.
+*TIM7的时基为0.1ms,计数器时钟CK_CLK为10kHz.
+*TResponse为TIM7，用于超时应答定时器,定时时间为500ms.
 */
 
 #include "template.h"
@@ -70,10 +72,11 @@ extern ModRTU_Buffer Data_Struct;   //通讯共用缓冲区
 //Modbus-RTU通讯状态结构
 typedef  struct
 {
+    bool bTxRx_Mode;  //处于0:发送还是1:接收状态.
     bool bResponse_TimeOut;  //应答超时。
     bool bBusy;         //忙。对于接收，接收开始不一定忙。
     bool bFrame_ReadEnb; //接收到的帧可读取标识。0：不可读取；1：可读取。
-    bool bDone;  //通讯完成，数据可读取。1:回传的数据可以读取。
+    bool bDone;  //主站一次通讯完成，数据可读取。1:回传的数据可以读取。
     bool bErr;          //接收帧有错误.
     u16 u16CommErr;     //通讯错误信息.0:无错;1:非本站信息(主站不用错误1);2:帧CRC错误;3:字节接收出错.
     unsigned int iErrCount;  //校验失败计数。
@@ -91,6 +94,9 @@ void RS485_Init(struct RS485Init_Struct RS485InitStruct);
 
 void T15_35_Init(void);
 void TResponse_Init(void);
+
+//复位并重启T3.5开始定时.
+void T3_5_Restart(void);
 
 //Modbus初始化
 void Modbus_Init(void);

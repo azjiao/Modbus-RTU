@@ -16,13 +16,15 @@ extern ModRTU_RX_Struct RX_Struct;
 extern ModRTU_TX_Struct TX_Struct;
 
 //从站地址号
-#define MBSLAVE_ADDR  1
+#define MBSLAVE_ADDR  3
 //定义资源每类占用的最大字节。
 #define DATA_MAXLEN   256
 //定义资源地址和通讯元件地址的对应关系。
 //如果定义了ADDR_BASE1为FALSE，则对应关系是0---->0,如果不是则对应关系是0---->1.(通讯元件地址0 无效了)
 //通讯的元件地址基于1，这是西门子PLC产品的特点，同样，ABB变频器也如此.
-//如果有特殊对应要求则需要修改程序。
+//但是，这是主站请求处理的事情。主站如果地址40001，则主站Modbus-RTU实际发出的是40000。
+//对于从站来说只需按照请求的地址来处理。
+//如果有特殊对应要求则需要修改程序，比如需要偏移地址以便记忆。
 #define ADDR_BASE1  FALSE
 
 //定义供通讯的服务器资源类型

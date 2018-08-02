@@ -92,29 +92,16 @@ int main(void)
     {
 
         
-    //if(!KEY0)
-    if(!KEY0)  //由于采用扫描方式不是中断，可能会由于通讯耗时出现错过防抖到的时刻。
-        DI_1xxxx.u8Data[0] |= 0x10;
-    else
-        DI_1xxxx.u8Data[0] &= 0xEF;
         
-    if(!KEY1)
-        DI_1xxxx.u8Data[0] |= 0x20;
-    else
-        DI_1xxxx.u8Data[0] &= 0xDF;
-    if(WKUP)
-        DI_1xxxx.u8Data[0] |= 0x40;
-    else
-        DI_1xxxx.u8Data[0] &= 0xBF;
-
-        //AI
-        AI_3xxxx.u16Data[0] = 0x1234;
-        AI_3xxxx.u16Data[1] = 0x5678;
-        AI_3xxxx.u16Data[2] = 0x9ABC;
-        AI_3xxxx.u16Data[3] = 0xDEF0;
-        AI_3xxxx.u16Data[4] = 0xEFCD;
-        AI_3xxxx.u16Data[5] = 0xF234;
         Modbus_Slave();
+        if(Modbus_Status_Struct.bBusy){
+            LED1_OFF;
+            LED0_ON;
+        }
+        else{
+            LED0_OFF;
+            LED1_ON;
+        }
 
        
     }

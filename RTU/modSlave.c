@@ -16,28 +16,28 @@ Type_0xxxx    DQ_0xxxx;
 Type_1xxxx    DI_1xxxx;
 Type_3xxxx    AI_3xxxx;
 Type_4xxxx    HR_4xxxx;
-int iCRCErr_Count = 0; //CRC校验错统计数据。
 
 //从站服务函数
 //Modbus初始化时485口为接收状态。
 void Modbus_Slave(void)
 {
-    //如果接收到了数据帧(数据帧可读)。
+    //如果接收到了数据帧(数据帧可读时端口为发送状态，防止接收到无关数据)。
     if(Modbus_Status_Struct.bFrame_ReadEnb)
     {
         //如果无错则解析
+        //当帧可读时其实bErr为FALSE，可以取消判断。
         if(!Modbus_Status_Struct.bErr)
         {
             //首先判断从站地址是否相符。
-            //站地址不符则放弃。
-            if(RX_Struct.Buffer[0] != MBSLAVE_ADDR){
-                //Usart_SendFrame(USART1, RX_Struct.Buffer, RX_Struct.u16Index);   
-                   // LED0_OFF;
-                return;}
-            
+            //站地址不符则放弃,重启接收。
+            if(RX_Struct.Buffer[0] != MBSLAVE_ADDR){                
+                ReceiveFrame(&RX_Struct);
+                return;
+            }
+
             //提取功能码做判断
             switch(RX_Struct.Buffer[1]){
-                case 0x01:SlaveFunc_0x01();  //读多个DQ_0xxxx                    
+                case 0x01:SlaveFunc_0x01();  //读多个DQ_0xxxx
                           break;
                 case 0x0F:SlaveFunc_0x0F();  //写多个DQ_0xxxx
                           break;
@@ -49,22 +49,11 @@ void Modbus_Slave(void)
                           break;
                 case 0x10:SlaveFunc_0x10();  //写多个HoldReg_4xxxx
                           break;
-                default:  Default_NonSupport();  //不支持的功能处理。                          
-                          
+                default:  Default_NonSupport();  //不支持的功能处理。
+
             }
-            //Usart_SendFrame(USART1, RX_Struct.Buffer, RX_Struct.u16Index);
-            LED0_ON;
             //结束后转入接收。
             ReceiveFrame(&RX_Struct);
-        }
-        //如果有错误：CRC校验失败
-        else{
-            //iCRCErr_Count++;
-            //printf("No %d:接收到的主站数据帧CRC16校验失败！\n", iCRCErr_Count);  
-            Usart_SendFrame(USART1, RX_Struct.Buffer, RX_Struct.u16Index);            
-            //重启接收:重点，不然会导致一直出现校验错误。
-            ReceiveFrame(&RX_Struct); 
-            LED0_OFF;
         }
     }
 }
@@ -83,14 +72,8 @@ void SlaveFunc_0x01(void)
 
     //获取元件基址及数量。
     //元件基址在第2、3字节，高字节在前。
-//    u16DataAddr = RX_Struct.Buffer[2];
-//    u16DataAddr = u16DataAddr << 8;
-//    u16DataAddr |= RX_Struct.Buffer[3];
     u16DataAddr = (((uint16_t)RX_Struct.Buffer[2]) << 8) | RX_Struct.Buffer[3];
     //数量在第4、5字节,高字节在前
-//    u16Num = RX_Struct.Buffer[4];
-//    u16Num = u16Num << 8;
-//    u16Num |= RX_Struct.Buffer[5];
     u16Num = (((uint16_t)RX_Struct.Buffer[4]) << 8) | RX_Struct.Buffer[5];
 
     //取得实际元件基址
@@ -206,14 +189,8 @@ void SlaveFunc_0x0F(void)
 
     //获取元件基址及数量。
     //元件基址在第2、3字节，高字节在前。
-//    u16DataAddr = RX_Struct.Buffer[2];
-//    u16DataAddr = u16DataAddr << 8;
-//    u16DataAddr |= RX_Struct.Buffer[3];
     u16DataAddr = (((uint16_t)RX_Struct.Buffer[2]) << 8) | RX_Struct.Buffer[3];
     //数量在第4、5字节,高字节在前
-//    u16Num = RX_Struct.Buffer[4];
-//    u16Num = u16Num << 8;
-//    u16Num |= RX_Struct.Buffer[5];
     u16Num = (((uint16_t)RX_Struct.Buffer[4]) << 8) | RX_Struct.Buffer[5];
 
     //计算所需的字节量。虽然接收帧里面含有字节量(第6字节)，但仍然要比较是否正确。
@@ -331,14 +308,8 @@ void SlaveFunc_0x02(void)
 
     //获取元件基址及数量。
     //元件基址在第2、3字节，高字节在前。
-//    u16DataAddr = RX_Struct.Buffer[2];
-//    u16DataAddr = u16DataAddr << 8;
-//    u16DataAddr |= RX_Struct.Buffer[3];
     u16DataAddr = (((uint16_t)RX_Struct.Buffer[2]) << 8) | RX_Struct.Buffer[3];
     //数量在第4、5字节,高字节在前
-//    u16Num = RX_Struct.Buffer[4];
-//    u16Num = u16Num << 8;
-//    u16Num |= RX_Struct.Buffer[5];
     u16Num = (((uint16_t)RX_Struct.Buffer[4]) << 8) | RX_Struct.Buffer[5];
 
     //取得实际元件基址
@@ -451,14 +422,8 @@ void SlaveFunc_0x04(void)
 
     //获取元件基址及数量。
     //元件基址在第2、3字节，高字节在前。
-//    u16DataAddr = RX_Struct.Buffer[2];
-//    u16DataAddr = u16DataAddr << 8;
-//    u16DataAddr |= RX_Struct.Buffer[3];
     u16DataAddr = (((uint16_t)RX_Struct.Buffer[2]) << 8) | RX_Struct.Buffer[3];
-    //数量在第4、5字节,高字节在前
-//    u16Num = RX_Struct.Buffer[4];
-//    u16Num = u16Num << 8;
-//    u16Num |= RX_Struct.Buffer[5];
+    //数量在第4、5字节,高字节在前.
     u16Num = (((uint16_t)RX_Struct.Buffer[4]) << 8) | RX_Struct.Buffer[5];
 
     //取得实际元件基址
@@ -535,14 +500,8 @@ void SlaveFunc_0x03(void)
 
     //获取元件基址及数量。
     //元件基址在第2、3字节，高字节在前。
-//    u16DataAddr = RX_Struct.Buffer[2];
-//    u16DataAddr = u16DataAddr << 8;
-//    u16DataAddr |= RX_Struct.Buffer[3];
     u16DataAddr = (((uint16_t)RX_Struct.Buffer[2]) << 8) | RX_Struct.Buffer[3];
     //数量在第4、5字节,高字节在前
-//    u16Num = RX_Struct.Buffer[4];
-//    u16Num = u16Num << 8;
-//    u16Num |= RX_Struct.Buffer[5];
     u16Num = (((uint16_t)RX_Struct.Buffer[4]) << 8) | RX_Struct.Buffer[5];
 
     //取得实际元件基址
@@ -619,14 +578,8 @@ void SlaveFunc_0x10(void)
 
     //获取元件基址及数量。
     //元件基址在第2、3字节，高字节在前。
-//    u16DataAddr = RX_Struct.Buffer[2];
-//    u16DataAddr = u16DataAddr << 8;
-//    u16DataAddr |= RX_Struct.Buffer[3];
     u16DataAddr = (((uint16_t)RX_Struct.Buffer[2]) << 8) | RX_Struct.Buffer[3];
     //数量在第4、5字节,高字节在前
-//    u16Num = RX_Struct.Buffer[4];
-//    u16Num = u16Num << 8;
-//    u16Num |= RX_Struct.Buffer[5];
     u16Num = (((uint16_t)RX_Struct.Buffer[4]) << 8) | RX_Struct.Buffer[5];
 
     //计算所需的字节量。虽然接收帧里面含有字节量(第6字节)，但仍然要比较是否正确。
@@ -713,9 +666,9 @@ void Default_NonSupport(void)
     //帧长度字节数。
     TX_Struct.u16Index = 5;
     //发送打包后的帧
-    
+
     SendFrame(&TX_Struct);
-    printf("This functiosn nonSupport!---%d\n",TX_Struct.Buffer[1]);    
+    printf("This functiosn nonSupport!---%d\n",TX_Struct.Buffer[1]);
     //Usart_SendFrame(USART1, TX_Struct.Buffer, TX_Struct.u16Index);
     //SendFrame(&TX_Struct);
 }
