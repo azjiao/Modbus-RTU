@@ -82,8 +82,6 @@ void RS485_Init(struct RS485Init_Struct RS485InitStruct)
     //TResponse定时器用于应答超时监测。
     T15_35_Init();
     TResponse_Init();
-   // T35_Init();
-   // T15_Init();
 
      //默认为接收模式
      RS485_RXENB;

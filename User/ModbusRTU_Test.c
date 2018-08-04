@@ -31,7 +31,7 @@ int main(void)
     Usart1_Init(19200);
     //Modbus通讯初始化.
     Modbus_Init();
-    ModRTU_Buffer Buffer_Temp; //数据暂存，用于比较。
+    Iwdg_Init(4, 625);  //独立看门狗初始化：预分频系数4对应64，RLR值为625，这样看门狗定时1s。
    
  /*  
     while(1)
@@ -89,10 +89,7 @@ int main(void)
     ReceiveFrame(&RX_Struct);  
  
     while(1)
-    {
-
-        
-        
+    {           
         Modbus_Slave();
         if(Modbus_Status_Struct.bBusy){
             LED1_OFF;
@@ -102,8 +99,7 @@ int main(void)
             LED0_OFF;
             LED1_ON;
         }
-
-       
+       Iwdg_Feed();
     }
 
 }

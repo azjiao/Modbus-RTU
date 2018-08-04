@@ -669,6 +669,4 @@ void Default_NonSupport(void)
 
     SendFrame(&TX_Struct);
     printf("This functiosn nonSupport!---%d\n",TX_Struct.Buffer[1]);
-    //Usart_SendFrame(USART1, TX_Struct.Buffer, TX_Struct.u16Index);
-    //SendFrame(&TX_Struct);
 }

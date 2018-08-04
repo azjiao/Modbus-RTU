@@ -9,5 +9,6 @@
 #include "bitBand.h"
 #include "usart1.h"
 #include "baseTime.h"
+#include "iwdg.h"
 
 #endif
