@@ -2,49 +2,26 @@
 #include <core_cm3.h>
 #include "delay.h"
 
-#define APP1MSPLUS
-#ifdef  APP1MSPLUS
-// 如果采用1ms脉冲方式，则以500us设置SysTick.
+// 以1ms设置SysTick.
 void delay_Init(void)
 {
-    // SysTick配置，等待完成。
-    if (SysTick_Config(RELOAD_500US))
-    {
-        while(1);
-    }
-}
-
-// SysTick定时器中断
-void SysTick_Handler(void)
-{
-    // 500us定时中断到，使Timer.bPlus_ms翻转一次。
-    Timer.bPlus_ms = !Timer.bPlus_ms;
-}
-
-#else
-// 如果采用1ms查询方式，则以1ms设置SysTick。
-// 采用SysTick的定时器初始化
-void delay_Init(void)
-{
-    // SysTick配置，等待完成。
+    // SysTick配置。    
     if (SysTick_Config(RELOAD_1MS))
     {
         while(1);
     }
 }
 
-// SysTick定时中断
+// SysTick定时器中断
+//每1ms中断一次，每次使bPlus_ms翻转一次，使uTimer_ms减1。
+//所产生的脉冲周期为2ms，每1ms翻转一次。
 void SysTick_Handler(void)
-{
-    // 1ms定时到，使Timer.uTimer_ms减1.
-    // 使用前必须使Timer.uTimer_ms赋值为需定时的ms倍数。
-    // Timer不能重复使用，只能在一个地方使用。
-    if( Timer.uTimer_ms != 0U )
-    {
+{    
+    Timer.bPlus_ms = !Timer.bPlus_ms;
+    if(Timer.uTimer_ms != 0U)
         Timer.uTimer_ms--;
-    }
 }
-#endif
+
 
 // ms级delay.
 void delay_ms(u32 utime_ms)
@@ -79,8 +56,11 @@ bool TimeON(bool bEnb, u32 uPt, TimerType *timer)
         return FALSE;
     }
     else{
-        if((timer->uEt < uPt) && (Timer.bPlus_ms) && (!timer->bTemp))
-            timer->uEt = timer->uEt + 1;
+        //if((timer->uEt < uPt) && ((Timer.bPlus_ms) & (Timer.bPlus_ms ^ timer->bTemp)))    
+        //每次检测到边沿(每1ms翻转一次)就加1.        
+        if((timer->uEt < uPt) && (Timer.bPlus_ms ^ timer->bTemp))
+            timer->uEt++;
+            
         timer->bTemp = Timer.bPlus_ms;
 
         if((timer->uEt >= uPt)){

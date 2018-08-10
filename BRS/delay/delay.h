@@ -1,16 +1,15 @@
-#ifndef __DELAY_H
-#define __DELAY_H
-#include "template.h"
 /*
  * 板载SysTick定时器。
  * 时钟源：采用FCLK，为AHB，72MHz.
  * 定时单位为1ms,装载值为 72000000/1000=72000UL
  * 不作1us定时。
  * 定时中断中将产生1ms计数值，为static unsigned int 类型，详见 结构体。
- * 主要用来产生延时作用--delay,延时中，其他后续操作被暂停。所以采用了查询定时时间是否到的方法。
- *
- *
+ * 可以使用来作为暂停延时（采用查询等待方式），也可以使用来作为不暂停的定时器使用。
  */
+ 
+#ifndef __DELAY_H
+#define __DELAY_H
+#include "template.h"
 
 // 1ms装载值。
 // 板载时钟SystemCoreClock为72MHz,本系统预置AHB等于SystemCoreClock,SysTick时钟源设置为AHB.
