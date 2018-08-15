@@ -74,6 +74,10 @@ void SlaveFunc_0x01(void);
 //强制多个连续的DQ，0xxxx
 void SlaveFunc_0x0F(void);
 
+//Function:0x05
+//强制单个DQ,0x0000
+void SlaveFunc_0x05(void);
+
 //Function:0x02
 //读取多个连续的输入离散量DI,1xxxx
 void SlaveFunc_0x02(void);
@@ -92,6 +96,7 @@ void SlaveFunc_0x10(void);
 
 //异常01,请求的功能不支持。
 void Default_NonSupport(void);
+
 
 #endif /* end of include guard: __MODSLAVE_H */
 

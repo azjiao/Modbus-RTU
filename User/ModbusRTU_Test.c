@@ -27,7 +27,8 @@ int main(void)
     NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);
     led_Init();
     key_Init();
-    delay_Init(); //采用查询方式延时，应在文件delay.c中注释掉#define APP1MSPLUS宏定义。
+    delay_Init(); 
+    beep_Init();
     Usart1_Init(19200);
     //Modbus通讯初始化.
     Modbus_Init();
@@ -93,7 +94,7 @@ int main(void)
         Modbus_Slave();
         if(Modbus_Status_Struct.bBusy){
             LED1_OFF;
-            LED0_ON;
+            LED0_ON;            
         }
         else{
             LED0_OFF;

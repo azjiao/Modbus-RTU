@@ -30,7 +30,7 @@ void Modbus_Slave(void)
         {
             //首先判断从站地址是否相符。
             //站地址不符则放弃,重启接收。
-            if(RX_Struct.Buffer[0] != MBSLAVE_ADDR){                
+            if(RX_Struct.Buffer[0] != MBSLAVE_ADDR){
                 ReceiveFrame(&RX_Struct);
                 return;
             }
@@ -40,6 +40,8 @@ void Modbus_Slave(void)
                 case 0x01:SlaveFunc_0x01();  //读多个DQ_0xxxx
                           break;
                 case 0x0F:SlaveFunc_0x0F();  //写多个DQ_0xxxx
+                          break;
+                case 0x05:SlaveFunc_0x05();  //写单个DQ_0xxxx
                           break;
                 case 0x02:SlaveFunc_0x02();  //读多个DI_1xxxx
                           break;
@@ -294,6 +296,90 @@ void SlaveFunc_0x0F(void)
     //发送打包后的帧
     SendFrame(&TX_Struct);
 }
+
+//Function:0x05
+//强制单个DQ,0x0000
+//数据为2个字节，只有0xFF00和0x0000有效，对应ON和OFF.
+void SlaveFunc_0x05(void)
+{
+    uint16_t u16DataAddr;  //元件基址
+    uint16_t u16Data;  //强制数据值。
+    uint16_t u16CRC;
+    uint16_t j; //CRC装载单元索引。
+    uint8_t u8ByteNum;  //所需字节数量
+    uint16_t u16ByteIndex;  //基址所在字节索引，从0开始的字节索引。
+    uint8_t u8BitIndex;  //基址所在字节的开始位索引，从0开始的位索引。
+
+    //获取元件基址及数量。
+    //元件基址在第2、3字节，高字节在前。
+    u16DataAddr = (((uint16_t)RX_Struct.Buffer[2]) << 8) | RX_Struct.Buffer[3];
+
+    //取得实际元件基址
+    //如果元件地址基于1但传入的元件基址为0，则减一成为最大值0xFFFF.
+    if(ADDR_BASE1)
+        u16DataAddr--;
+
+    //装配数据:
+    //从站地址
+    TX_Struct.Buffer[0] = MBSLAVE_ADDR;
+    //功能码
+    TX_Struct.Buffer[1] = 0x05;
+
+    //判断强制数据值是否正确：只有0x0000和0xFF00有效。
+    //数据值在第4、5字节,高字节在前。
+    u16Data = (((uint16_t)RX_Struct.Buffer[4] << 8) | RX_Struct.Buffer[5]);
+    if(u16Data == 0x0000 | u16Data == 0xFF00)
+    {
+        //判断元件基址是否合适。
+        //从站单元地址从0开始。
+        if(u16DataAddr <= DATA_MAXLEN * 8)
+        {
+            //打包数据帧
+            //元件基址
+            TX_Struct.Buffer[2] = RX_Struct.Buffer[2];
+            TX_Struct.Buffer[3] = RX_Struct.Buffer[3];
+            //强制值
+            TX_Struct.Buffer[4] = RX_Struct.Buffer[4];
+            TX_Struct.Buffer[5] = RX_Struct.Buffer[5];
+
+            //定位u16DataAddr所在字节索引。
+            u16ByteIndex = u16DataAddr/8;
+            //定位所在字节的开始位索引。
+            u8BitIndex = u16DataAddr%8;
+            uint8_t u8DQMask = 0x01 << u8BitIndex;  //DQ字节掩码.
+
+            //向DQ相应的单元写强制值。
+            if(u16Data == 0xFF00)
+                DQ_0xxxx.u8Data[u16ByteIndex] |= u8DQMask;
+            else
+                DQ_0xxxx.u8Data[u16ByteIndex] &= (u8DQMask ^ 0xFF);
+
+            j = 6; //j为CRC所在单元。
+        }
+        else{
+            //产生异常02：地址非法
+            TX_Struct.Buffer[1] |= 0x80;
+            TX_Struct.Buffer[2] = 0x02;
+            j = 3;
+        }
+    }
+    else{
+        //产生异常03：数据非法
+        TX_Struct.Buffer[1] |= 0x80;
+        TX_Struct.Buffer[2] = 0x03;
+        j = 3;
+    }
+
+    //生成CRC16。
+    u16CRC = CRC16Gen(TX_Struct.Buffer, j);
+    TX_Struct.Buffer[j] = u16CRC;
+    TX_Struct.Buffer[j+1] = u16CRC >> 8;
+    //帧长度字节数。
+    TX_Struct.u16Index = j + 2;
+    //发送打包后的帧
+    SendFrame(&TX_Struct);
+}
+
 
 //Function:0x02
 //读取多个连续的输入离散量DI,1xxxx
