@@ -12,7 +12,8 @@
 #define __BITBAND_BEEP
 // 使用位带来操作蜂鸣器
 #ifdef __BITBAND_BEEP
-#define BEEP_ON  PBout(8) = 1
+#define BEEP      PBout(8)
+#define BEEP_ON   PBout(8) = 1
 #define BEEP_OFF  PBout(8) = 0
 // 使用普通库函数来操作蜂鸣器
 #else

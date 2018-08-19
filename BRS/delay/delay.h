@@ -23,7 +23,7 @@
 // 延时器,配合SysTick使用。
 static struct {
     u32 uTimer_ms;  // ms延时器,用于查询延时。
-    bool bPlus_ms;  // ms脉冲信号,0.5msON,0.5msOFF.
+    bool bPlus_ms;  // ms脉冲信号,1msON,1msOFF.
 }Timer;
 
 // 脉冲型定时器结构
