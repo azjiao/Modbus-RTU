@@ -1,12 +1,21 @@
 #ifndef __KEY_H
 #define __KEY_H
 #include "template.h"
+#include "bitBand.h"
 
+#define  __BITBAND_KEY
+// 使用位带操作KEY。
+#ifdef  __BITBAND_KEY
+#define KEY0    PEin(4)
+#define KEY1    PEin(3)
+#define WKUP    PAin(0)
+#else
 //定义KEY0、KEY1、Wk_UP三个宏为相应key的输入真值。
 //此为真值，KEY0和KEY1按下时值为0，WKUP按下时值为1.
 #define KEY0   GPIO_ReadInputDataBit(GPIOE, GPIO_Pin_4)
 #define KEY1   GPIO_ReadInputDataBit(GPIOE, GPIO_Pin_3)
 #define WKUP  GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_0)
+#endif
 
 //定义三个键按下时的独立编码值.可以用于按下释放检测也可以用于键编码值检测。
 //注意：键的真值由KEY0/KEY1/WKUP三个宏来定义.
