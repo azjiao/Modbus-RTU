@@ -6,7 +6,7 @@
  * 定时中断中将产生1ms计数值，为static unsigned int 类型，详见 结构体。
  * 可以使用来作为暂停延时（采用查询等待方式），也可以使用来作为不暂停的定时器使用。
  */
- 
+
 #ifndef __DELAY_H
 #define __DELAY_H
 #include "template.h"
@@ -23,7 +23,7 @@
 // 延时器,配合SysTick使用。
 static struct {
     u32 uTimer_ms;  // ms延时器,用于查询延时。
-    bool bPlus_ms;  // ms脉冲信号,1msON,1msOFF.
+    bool bPlus_ms;  // ms脉冲信号,0.5msON,0.5msOFF.
 }Timer;
 
 // 脉冲型定时器结构
@@ -47,5 +47,12 @@ void delay_s(u32 utime_s);
 // 当bEnb为FALSE时复位定时器。
 // 当定时到达后如果没有复位定时器则定时器当前计数值uEt保持不变。
 bool TimeON(bool bEnb, u32 uPt, TimerType *timer);
+
+//时间累计器
+//当bEnb为TRUE时计时开始，时间单位为ms。
+//当bEnb为FALSE时复位计时器。
+//时间累计值最大为32为无符号整数，为4294967295ms，约47天。
+//当累计时间越限时自动复位为0.
+uint16_t TimeACC(bool bEnb, TimerType *timer);
 
 #endif /* end of include guard: __DELAY_H */
